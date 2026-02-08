@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplikasi screening saham Indonesia - Temukan saham yang sesuai dengan profil investasi Anda. Analisis return, profil risiko, dan rekomendasi saham terbaik.">
+    <meta name="keywords" content="screening saham, investasi saham, saham indonesia, profil risiko, analisis saham, stockbit, idx">
+    <meta name="author" content="Stock Screener Indonesia">
+    <title>Aplikasi Screening Saham Indonesia - Temukan Saham Terbaik</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            gap: 10px;
+        }
+
+        .step-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.2);
+        }
+
+        .step-dot.completed {
+            background: #4caf50;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .risk-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .risk-option {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .risk-option:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+        }
+
+        .risk-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .risk-option .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .risk-option .title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .risk-option .desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .result-section {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .result-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-item .label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-item .value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .stock-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .stock-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stock-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-yellow {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .badge-red {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1565c0;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            color: #e65100;
+            border-left: 4px solid #e65100;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+
+        .helper-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .risk-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Aplikasi Screening Saham</h1>
+            <p>Temukan saham yang sesuai dengan profil investasi Anda</p>
+        </div>
+
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step-dot active" data-step="1">1</div>
+                <div class="step-dot" data-step="2">2</div>
+                <div class="step-dot" data-step="3">3</div>
+                <div class="step-dot" data-step="4">4</div>
+            </div>
+
+            <!-- Step 1: Tujuan Investasi -->
+            <div class="step active" id="step1">
+                <h2 style="margin-bottom: 25px; color: #333;">🎯 Tujuan Investasi Anda</h2>
+                
+                <div class="form-group">
+                    <label for="investmentGoal">Tujuan Investasi</label>
+                    <select id="investmentGoal">
+                        <option value="">Pilih tujuan...</option>
+                        <option value="retirement">Dana Pensiun</option>
+                        <option value="education">Dana Pendidikan</option>
+                        <option value="house">Beli Rumah</option>
+                        <option value="wedding">Pernikahan</option>
+                        <option value="other">Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="targetAmount">Target Dana (Rp)</label>
+                    <input type="number" id="targetAmount" placeholder="500000000" min="0">
+                    <div class="helper-text">Berapa dana yang ingin Anda capai?</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="timeHorizon">Jangka Waktu (Tahun)</label>
+                    <input type="number" id="timeHorizon" placeholder="10" min="1" max="50">
+                    <div class="helper-text">Berapa tahun lagi Anda membutuhkan dana tersebut?</div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="nextStep(1)">Lanjut →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Profil Risiko -->
+            <div class="step" id="step2">
+                <h2 style="margin-bottom: 25px; color: #333;">⚖️ Profil Risiko Anda</h2>
+                
+                <div class="alert alert-info">
+                    <strong>Apa itu profil risiko?</strong> Profil risiko menentukan seberapa besar fluktuasi nilai investasi yang dapat Anda terima.
+                </div>
+
+                <div class="risk-options">
+                    <div class="risk-option" onclick="selectRisk('conservative')">
+                        <div class="icon">🛡️</div>
+                        <div class="title">Konservatif</div>
+                        <div class="desc">Risiko rendah, return stabil 5-10%</div>
+                    </div>
+                    <div class="risk-option" onclick="selectRisk('moderate')">
+                        <div class="icon">⚖️</div>
+                        <div class="title">Moderat</div>
+                        <div class="desc">Risiko sedang, return 10-15%</div>
+                    </div>
+                    <div class="risk-option" onclick="selectRisk('aggressive')">
+                        <div class="icon">🚀</div>
+                        <div class="title">Agresif</div>
+                        <div class="desc">Risiko tinggi, target return >15%</div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="riskProfile">
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep(2)">← Kembali</button>
+                    <button class="btn-primary" onclick="nextStep(2)">Lanjut →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Cashflow -->
+            <div class="step" id="step3">
+                <h2 style="margin-bottom: 25px; color: #333;">💰 Kemampuan Investasi</h2>
+                
+                <div class="form-group">
+                    <label for="monthlyCashflow">Investasi Rutin per Bulan (Rp)</label>
+                    <input type="number" id="monthlyCashflow" placeholder="5000000" min="0">
+                    <div class="helper-text">Berapa dana yang bisa Anda investasikan setiap bulan?</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="initialInvestment">Dana Awal (Rp) - Opsional</label>
+                    <input type="number" id="initialInvestment" placeholder="50000000" min="0" value="0">
+                    <div class="helper-text">Dana yang sudah tersedia untuk diinvestasikan saat ini</div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep(3)">← Kembali</button>
+                    <button class="btn-primary" onclick="calculateAndScreen()">Hitung & Screening 🔍</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Hasil -->
+            <div class="step" id="step4">
+                <h2 style="margin-bottom: 25px; color: #333;">📈 Hasil Analisis & Rekomendasi Saham</h2>
+                
+                <div id="calculationResult"></div>
+                <div id="stockRecommendation"></div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="editInputs()">✏️ Edit Data</button>
+                    <button class="btn-secondary" onclick="resetApp()">🔄 Mulai Lagi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedRisk = '';
+
+        // Database saham Indonesia (contoh data)
+        const stockDatabase = [
+            // Blue Chip - Low Risk (Large Cap > 500T)
+            { code: "BBCA", name: "Bank Central Asia", sector: "Perbankan", pe: 18.5, pbv: 4.2, roe: 22.8, dividend: 3.2, marketCap: 1200, risk: "conservative", avgReturn: 15 },
+            { code: "BBRI", name: "Bank Rakyat Indonesia", sector: "Perbankan", pe: 12.3, pbv: 2.8, roe: 18.5, dividend: 4.1, marketCap: 950, risk: "conservative", avgReturn: 12 },
+            { code: "TLKM", name: "Telkom Indonesia", sector: "Telekomunikasi", pe: 15.2, pbv: 3.1, roe: 20.3, dividend: 5.5, marketCap: 850, risk: "conservative", avgReturn: 10 },
+            { code: "ASII", name: "Astra International", sector: "Otomotif", pe: 11.8, pbv: 2.5, roe: 14.2, dividend: 4.8, marketCap: 700, risk: "conservative", avgReturn: 11 },
+            { code: "UNVR", name: "Unilever Indonesia", sector: "Consumer Goods", pe: 35.2, pbv: 45.8, roe: 130.5, dividend: 6.2, marketCap: 550, risk: "conservative", avgReturn: 8 },
+            
+            // Mid Cap - Moderate Risk (100T - 500T)
+            { code: "BMRI", name: "Bank Mandiri", sector: "Perbankan", pe: 10.5, pbv: 2.1, roe: 16.2, dividend: 4.5, marketCap: 800, risk: "moderate", avgReturn: 18 },
+            { code: "ICBP", name: "Indofood CBP", sector: "Food & Beverage", pe: 22.3, pbv: 5.2, roe: 18.7, dividend: 3.8, marketCap: 450, risk: "moderate", avgReturn: 14 },
+            { code: "INDF", name: "Indofood Sukses Makmur", sector: "Food & Beverage", pe: 16.8, pbv: 1.9, roe: 12.5, dividend: 2.9, marketCap: 380, risk: "moderate", avgReturn: 16 },
+            { code: "KLBF", name: "Kalbe Farma", sector: "Farmasi", pe: 19.5, pbv: 3.8, roe: 19.2, dividend: 3.5, marketCap: 320, risk: "moderate", avgReturn: 15 },
+            { code: "PTBA", name: "Bukit Asam", sector: "Pertambangan", pe: 8.2, pbv: 1.5, roe: 24.5, dividend: 7.8, marketCap: 280, risk: "moderate", avgReturn: 20 },
+            { code: "ADRO", name: "Adaro Energy", sector: "Pertambangan", pe: 7.8, pbv: 1.8, roe: 26.3, dividend: 8.5, marketCap: 185, risk: "moderate", avgReturn: 25 },
+            { code: "ITMG", name: "Indo Tambangraya Megah", sector: "Pertambangan", pe: 6.5, pbv: 1.3, roe: 28.7, dividend: 9.2, marketCap: 145, risk: "moderate", avgReturn: 28 },
+            { code: "MEDC", name: "Medco Energi", sector: "Energi", pe: 9.2, pbv: 1.6, roe: 18.5, dividend: 3.8, marketCap: 125, risk: "moderate", avgReturn: 22 },
+            
+            // Growth Stocks - Aggressive (Mid & Small Cap)
+            { code: "GOTO", name: "GoTo Gojek Tokopedia", sector: "Technology", pe: -15.2, pbv: 1.2, roe: -8.5, dividend: 0, marketCap: 250, risk: "aggressive", avgReturn: 25 },
+            { code: "BUKA", name: "Bukalapak.com", sector: "E-commerce", pe: -12.8, pbv: 0.9, roe: -12.3, dividend: 0, marketCap: 85, risk: "aggressive", avgReturn: 30 },
+            { code: "EMTK", name: "Elang Mahkota Teknologi", sector: "Media", pe: 14.2, pbv: 2.8, roe: 15.8, dividend: 1.2, marketCap: 180, risk: "aggressive", avgReturn: 22 },
+            { code: "ERAA", name: "Erajaya Swasembada", sector: "Retail", pe: 18.5, pbv: 3.5, roe: 16.5, dividend: 2.1, marketCap: 95, risk: "aggressive", avgReturn: 28 },
+            { code: "BRIS", name: "Bank BRI Syariah", sector: "Perbankan Syariah", pe: 13.8, pbv: 2.3, roe: 14.8, dividend: 2.5, marketCap: 150, risk: "aggressive", avgReturn: 24 },
+            { code: "AMMN", name: "Amman Mineral", sector: "Pertambangan", pe: 9.5, pbv: 1.8, roe: 28.5, dividend: 5.2, marketCap: 420, risk: "aggressive", avgReturn: 35 },
+            
+            // Small Cap - High Growth Potential (< 100T)
+            { code: "MDKA", name: "Merdeka Copper Gold", sector: "Pertambangan", pe: 11.2, pbv: 2.1, roe: 24.8, dividend: 3.5, marketCap: 95, risk: "aggressive", avgReturn: 32 },
+            { code: "ANTM", name: "Aneka Tambang", sector: "Pertambangan", pe: 8.9, pbv: 1.4, roe: 22.5, dividend: 6.8, marketCap: 88, risk: "aggressive", avgReturn: 29 },
+            { code: "TINS", name: "Timah", sector: "Pertambangan", pe: 7.5, pbv: 1.2, roe: 19.8, dividend: 7.5, marketCap: 45, risk: "aggressive", avgReturn: 26 },
+            { code: "BRPT", name: "Barito Pacific", sector: "Kimia", pe: 10.8, pbv: 1.7, roe: 21.3, dividend: 4.2, marketCap: 78, risk: "aggressive", avgReturn: 27 },
+            { code: "TPIA", name: "Chandra Asri Pacific", sector: "Kimia", pe: 12.5, pbv: 1.9, roe: 18.9, dividend: 3.1, marketCap: 65, risk: "aggressive", avgReturn: 25 },
+            { code: "PWON", name: "Pakuwon Jati", sector: "Properti", pe: 15.8, pbv: 2.2, roe: 16.7, dividend: 2.8, marketCap: 55, risk: "aggressive", avgReturn: 24 },
+            { code: "BSDE", name: "Bumi Serpong Damai", sector: "Properti", pe: 14.2, pbv: 1.8, roe: 15.5, dividend: 3.2, marketCap: 48, risk: "aggressive", avgReturn: 23 },
+            { code: "TOWR", name: "Sarana Menara Nusantara", sector: "Infrastruktur", pe: 16.5, pbv: 3.2, roe: 20.5, dividend: 2.5, marketCap: 92, risk: "aggressive", avgReturn: 26 },
+            { code: "EXCL", name: "XL Axiata", sector: "Telekomunikasi", pe: 13.8, pbv: 2.5, roe: 17.8, dividend: 4.5, marketCap: 85, risk: "aggressive", avgReturn: 22 },
+            { code: "ISAT", name: "Indosat Ooredoo", sector: "Telekomunikasi", pe: 14.5, pbv: 2.8, roe: 16.2, dividend: 3.8, marketCap: 72, risk: "aggressive", avgReturn: 24 },
+            { code: "TBIG", name: "Tower Bersama", sector: "Infrastruktur", pe: 18.2, pbv: 3.5, roe: 19.5, dividend: 2.2, marketCap: 68, risk: "aggressive", avgReturn: 25 },
+            { code: "WIKA", name: "Wijaya Karya", sector: "Konstruksi", pe: 11.5, pbv: 1.5, roe: 14.8, dividend: 3.5, marketCap: 42, risk: "aggressive", avgReturn: 21 },
+            { code: "SMGR", name: "Semen Indonesia", sector: "Semen", pe: 13.2, pbv: 2.1, roe: 16.5, dividend: 4.8, marketCap: 125, risk: "moderate", avgReturn: 18 },
+            { code: "INCO", name: "Vale Indonesia", sector: "Pertambangan", pe: 8.8, pbv: 1.6, roe: 25.8, dividend: 7.2, marketCap: 95, risk: "aggressive", avgReturn: 30 },
+            { code: "MIKA", name: "Mitra Keluarga", sector: "Healthcare", pe: 22.5, pbv: 4.2, roe: 20.8, dividend: 2.8, marketCap: 58, risk: "aggressive", avgReturn: 23 },
+            { code: "HEAL", name: "Medikaloka Hermina", sector: "Healthcare", pe: 21.8, pbv: 3.8, roe: 19.5, dividend: 3.1, marketCap: 52, risk: "aggressive", avgReturn: 24 },
+        ];
+
+        function updateProgress() {
+            const progress = (currentStep / 4) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function nextStep(step) {
+            // Validasi input
+            if (step === 1) {
+                const goal = document.getElementById('investmentGoal').value;
+                const target = document.getElementById('targetAmount').value;
+                const time = document.getElementById('timeHorizon').value;
+                
+                if (!goal || !target || !time) {
+                    alert('Mohon lengkapi semua data!');
+                    return;
+                }
+                
+                if (parseFloat(target) <= 0) {
+                    alert('Target dana harus lebih dari 0!');
+                    return;
+                }
+                
+                if (parseInt(time) < 1) {
+                    alert('Jangka waktu minimal 1 tahun!');
+                    return;
+                }
+            } else if (step === 2) {
+                if (!selectedRisk) {
+                    alert('Mohon pilih profil risiko Anda!');
+                    return;
+                }
+            }
+
+            // Pindah ke step berikutnya
+            document.getElementById('step' + step).classList.remove('active');
+            document.getElementById('step' + (step + 1)).classList.add('active');
+            
+            // Update step indicator
+            document.querySelector(`.step-dot[data-step="${step}"]`).classList.remove('active');
+            document.querySelector(`.step-dot[data-step="${step}"]`).classList.add('completed');
+            document.querySelector(`.step-dot[data-step="${step + 1}"]`).classList.add('active');
+            
+            currentStep = step + 1;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function prevStep(step) {
+            document.getElementById('step' + step).classList.remove('active');
+            document.getElementById('step' + (step - 1)).classList.add('active');
+            
+            document.querySelector(`.step-dot[data-step="${step}"]`).classList.remove('active');
+            document.querySelector(`.step-dot[data-step="${step - 1}"]`).classList.remove('completed');
+            document.querySelector(`.step-dot[data-step="${step - 1}"]`).classList.add('active');
+            
+            currentStep = step - 1;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectRisk(risk) {
+            // Remove previous selection
+            document.querySelectorAll('.risk-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add new selection
+            event.target.closest('.risk-option').classList.add('selected');
+            selectedRisk = risk;
+            document.getElementById('riskProfile').value = risk;
+        }
+
+        function calculateAndScreen() {
+            // Validasi
+            const cashflow = document.getElementById('monthlyCashflow').value;
+            
+            if (!cashflow || parseFloat(cashflow) <= 0) {
+                alert('Mohon masukkan investasi rutin per bulan!');
+                return;
+            }
+
+            // Ambil semua data
+            const targetAmount = parseFloat(document.getElementById('targetAmount').value);
+            const timeHorizon = parseInt(document.getElementById('timeHorizon').value);
+            const monthlyCashflow = parseFloat(cashflow);
+            const initialInvestment = parseFloat(document.getElementById('initialInvestment').value) || 0;
+
+            // Hitung return yang dibutuhkan menggunakan Future Value of Annuity formula
+            const months = timeHorizon * 12;
+            
+            // Untuk menghitung return yang dibutuhkan, kita gunakan formula FV annuity
+            // FV = PV(1+r)^n + PMT × [((1+r)^n - 1) / r]
+            // Kita perlu mencari r (monthly return) yang membuat FV = targetAmount
+            
+            let annualizedReturn = 0;
+            let totalInvestment = initialInvestment + (monthlyCashflow * months);
+            
+            // Jika total investasi sudah >= target, berarti tidak perlu return
+            if (totalInvestment >= targetAmount) {
+                annualizedReturn = 0;
+                totalInvestment = targetAmount;
+            } else {
+                // Gunakan iterasi untuk mencari monthly return yang tepat
+                let monthlyReturn = 0.005; // Start dengan 0.5% per bulan (6% per tahun)
+                let found = false;
+                
+                for (let i = 0; i < 1000; i++) {
+                    let fv = initialInvestment * Math.pow(1 + monthlyReturn, months);
+                    
+                    if (monthlyReturn !== 0) {
+                        fv += monthlyCashflow * ((Math.pow(1 + monthlyReturn, months) - 1) / monthlyReturn);
+                    } else {
+                        fv += monthlyCashflow * months;
+                    }
+                    
+                    if (Math.abs(fv - targetAmount) < 1000) {
+                        found = true;
+                        break;
+                    }
+                    
+                    if (fv < targetAmount) {
+                        monthlyReturn += 0.0001;
+                    } else {
+                        monthlyReturn -= 0.00005;
+                    }
+                }
+                
+                // Convert monthly return to annual return
+                annualizedReturn = (Math.pow(1 + monthlyReturn, 12) - 1) * 100;
+                
+                // Ensure minimum return is 0
+                if (annualizedReturn < 0) annualizedReturn = 0;
+            }
+            
+            const requiredReturn = ((targetAmount - totalInvestment) / totalInvestment) * 100;
+
+            // Tentukan kategori return
+            let returnCategory = '';
+            let returnBadge = '';
+            if (annualizedReturn < 10) {
+                returnCategory = 'Rendah';
+                returnBadge = 'badge-green';
+            } else if (annualizedReturn < 20) {
+                returnCategory = 'Sedang';
+                returnBadge = 'badge-yellow';
+            } else {
+                returnCategory = 'Tinggi';
+                returnBadge = 'badge-red';
+            }
+
+            // Filter saham berdasarkan profil risiko dan return
+            let filteredStocks = stockDatabase.filter(stock => {
+                if (selectedRisk === 'conservative') {
+                    // Untuk konservatif, hanya saham konservatif dengan return memadai
+                    return stock.risk === 'conservative' && stock.avgReturn >= Math.min(annualizedReturn - 5, 8);
+                } else if (selectedRisk === 'moderate') {
+                    // Untuk moderat, terima konservatif dan moderat
+                    return (stock.risk === 'conservative' || stock.risk === 'moderate') && 
+                           stock.avgReturn >= Math.min(annualizedReturn - 5, 10);
+                } else {
+                    // Untuk agresif, terima semua yang memenuhi target return
+                    return stock.avgReturn >= Math.min(annualizedReturn - 5, 15);
+                }
+            });
+
+            // Sort by return descending
+            filteredStocks.sort((a, b) => b.avgReturn - a.avgReturn);
+
+            // Take top 10
+            filteredStocks = filteredStocks.slice(0, 10);
+
+            // Tampilkan hasil
+            displayResults(targetAmount, timeHorizon, totalInvestment, requiredReturn, 
+                          annualizedReturn, returnCategory, returnBadge, filteredStocks);
+
+            // Pindah ke step 4
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step4').classList.add('active');
+            document.querySelector('.step-dot[data-step="3"]').classList.remove('active');
+            document.querySelector('.step-dot[data-step="3"]').classList.add('completed');
+            document.querySelector('.step-dot[data-step="4"]').classList.add('active');
+            currentStep = 4;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function displayResults(target, years, totalInvest, reqReturn, annReturn, category, badge, stocks) {
+            const goalText = document.getElementById('investmentGoal').options[document.getElementById('investmentGoal').selectedIndex].text;
+            const riskText = selectedRisk === 'conservative' ? 'Konservatif 🛡️' : 
+                           selectedRisk === 'moderate' ? 'Moderat ⚖️' : 'Agresif 🚀';
+
+            let resultHTML = `
+                <div class="result-section">
+                    <h3>📊 Ringkasan Profil Investasi</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="label">Tujuan Investasi</div>
+                            <div class="value">${goalText}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">Target Dana</div>
+                            <div class="value">Rp ${formatNumber(target)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">Jangka Waktu</div>
+                            <div class="value">${years} Tahun</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">Profil Risiko</div>
+                            <div class="value">${riskText}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <h3>💡 Analisis Return yang Dibutuhkan</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="label">Total Investasi</div>
+                            <div class="value">Rp ${formatNumber(totalInvest)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">Return Dibutuhkan (per tahun)</div>
+                            <div class="value">${annReturn.toFixed(2)}% <span class="badge ${badge}">${category}</span></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="label">Pertumbuhan dari Return</div>
+                            <div class="value">Rp ${formatNumber(Math.max(0, target - totalInvest))}</div>
+                        </div>
+                    </div>
+                    ${annReturn === 0 ? `
+                    <div class="alert alert-info" style="margin-top: 20px;">
+                        <strong>✅ Kabar Baik!</strong> Total investasi Anda (Rp ${formatNumber(totalInvest)}) 
+                        sudah mencukupi atau melebihi target dana tanpa perlu return investasi. 
+                        Anda bisa memilih investasi konservatif dengan risiko rendah.
+                    </div>
+                    ` : ''}
+                    ${annReturn > 25 ? `
+                    <div class="alert alert-warning" style="margin-top: 20px;">
+                        <strong>⚠️ Perhatian:</strong> Target return Anda cukup tinggi (${annReturn.toFixed(2)}%). 
+                        Pertimbangkan untuk meningkatkan investasi bulanan atau memperpanjang jangka waktu untuk mengurangi risiko.
+                    </div>
+                    ` : annReturn > 0 && annReturn <= 25 ? `
+                    <div class="alert alert-info" style="margin-top: 20px;">
+                        <strong>💡 Informasi:</strong> Target return Anda (${annReturn.toFixed(2)}%) cukup realistis 
+                        dan dapat dicapai dengan strategi investasi yang tepat sesuai profil risiko Anda.
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('calculationResult').innerHTML = resultHTML;
+
+            // Tampilkan rekomendasi saham
+            let stockHTML = `
+                <div class="result-section">
+                    <h3>🎯 Rekomendasi Saham (Top ${stocks.length})</h3>
+                    ${stocks.length === 0 ? `
+                        <div class="alert alert-warning">
+                            <strong>Tidak ada saham yang sesuai dengan kriteria Anda.</strong><br>
+                            Pertimbangkan untuk menyesuaikan target return atau profil risiko Anda.
+                        </div>
+                    ` : `
+                        <div class="alert alert-info">
+                            Saham di bawah ini dipilih berdasarkan profil risiko <strong>${riskText}</strong> 
+                            dan memiliki potensi return yang sesuai dengan target Anda.
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="stock-table">
+                                <thead>
+                                    <tr>
+                                        <th>Kode</th>
+                                        <th>Nama Perusahaan</th>
+                                        <th>Sektor</th>
+                                        <th>Market Cap</th>
+                                        <th>Avg Return</th>
+                                        <th>P/E Ratio</th>
+                                        <th>ROE</th>
+                                        <th>Dividen</th>
+                                        <th>Kategori</th>
+                                        <th>Analisis</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${stocks.map(stock => {
+                                        let capBadge = '';
+                                        if (stock.marketCap >= 500) {
+                                            capBadge = '<span class="badge badge-green">Large Cap</span>';
+                                        } else if (stock.marketCap >= 100) {
+                                            capBadge = '<span class="badge badge-yellow">Mid Cap</span>';
+                                        } else {
+                                            capBadge = '<span class="badge" style="background: #e3f2fd; color: #1565c0;">Small Cap</span>';
+                                        }
+                                        
+                                        return `
+                                        <tr>
+                                            <td><strong>${stock.code}</strong></td>
+                                            <td>${stock.name}</td>
+                                            <td>${stock.sector}</td>
+                                            <td>Rp ${stock.marketCap}T ${capBadge}</td>
+                                            <td><strong style="color: #4caf50;">${stock.avgReturn}%</strong></td>
+                                            <td>${stock.pe > 0 ? stock.pe.toFixed(1) : 'N/A'}</td>
+                                            <td>${stock.roe.toFixed(1)}%</td>
+                                            <td>${stock.dividend.toFixed(1)}%</td>
+                                            <td>
+                                                ${stock.risk === 'conservative' ? '<span class="badge badge-green">Konservatif</span>' : 
+                                                  stock.risk === 'moderate' ? '<span class="badge badge-yellow">Moderat</span>' : 
+                                                  '<span class="badge badge-red">Agresif</span>'}
+                                            </td>
+                                            <td>
+                                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                                    <a href="https://stockbit.com/stock/${stock.code}" target="_blank" 
+                                                       style="padding: 4px 8px; background: #1a73e8; color: white; text-decoration: none; 
+                                                              border-radius: 4px; font-size: 0.85em; white-space: nowrap;"
+                                                       title="Lihat di Stockbit">
+                                                        📊 Stockbit
+                                                    </a>
+                                                    <a href="https://www.tradingview.com/chart/?symbol=IDX%3A${stock.code}" target="_blank" 
+                                                       style="padding: 4px 8px; background: #131722; color: white; text-decoration: none; 
+                                                              border-radius: 4px; font-size: 0.85em; white-space: nowrap;"
+                                                       title="Lihat chart di TradingView">
+                                                        📈 Chart
+                                                    </a>
+                                                    <a href="https://www.idx.co.id/id/perusahaan-tercatat/profil-perusahaan-tercatat?kodeEmiten=${stock.code}" target="_blank" 
+                                                       style="padding: 4px 8px; background: #d32f2f; color: white; text-decoration: none; 
+                                                              border-radius: 4px; font-size: 0.85em; white-space: nowrap;"
+                                                       title="Info resmi di IDX">
+                                                        🏢 IDX
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `}).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-warning" style="margin-top: 20px;">
+                            <strong>📌 Catatan Penting:</strong>
+                            <ul style="margin: 10px 0 0 20px;">
+                                <li>Data di atas adalah simulasi untuk tujuan edukasi</li>
+                                <li>Return historis bukan jaminan return masa depan</li>
+                                <li>Gunakan link <strong>Stockbit</strong> untuk melihat analisis komunitas dan berita terkini</li>
+                                <li>Gunakan link <strong>Chart</strong> (TradingView) untuk analisis teknikal</li>
+                                <li>Gunakan link <strong>IDX</strong> untuk informasi resmi dan laporan keuangan</li>
+                                <li>Lakukan riset mendalam sebelum berinvestasi</li>
+                                <li>Diversifikasi portofolio untuk mengurangi risiko</li>
+                                <li>Konsultasikan dengan advisor keuangan profesional</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-info" style="margin-top: 15px;">
+                            <strong>💡 Tips Analisis Lanjutan:</strong>
+                            <ul style="margin: 10px 0 0 20px;">
+                                <li><strong>Stockbit:</strong> Cek sentimen pasar, diskusi investor, dan berita terkini</li>
+                                <li><strong>TradingView:</strong> Analisis chart, pattern, support/resistance, dan indikator teknikal</li>
+                                <li><strong>IDX:</strong> Download laporan keuangan, cek corporate action, dan pengumuman resmi</li>
+                                <li><strong>Riset Fundamental:</strong> Cek pertumbuhan revenue, profit margin, dan debt ratio</li>
+                                <li><strong>Riset Teknikal:</strong> Perhatikan tren, volume trading, dan momentum</li>
+                            </ul>
+                        </div>
+                    `}
+                </div>
+            `;
+
+            document.getElementById('stockRecommendation').innerHTML = stockHTML;
+        }
+
+        function formatNumber(num) {
+            return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        function resetApp() {
+            // Reset form
+            document.getElementById('investmentGoal').value = '';
+            document.getElementById('targetAmount').value = '';
+            document.getElementById('timeHorizon').value = '';
+            document.getElementById('monthlyCashflow').value = '';
+            document.getElementById('initialInvestment').value = '0';
+            
+            // Reset risk selection
+            document.querySelectorAll('.risk-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            selectedRisk = '';
+
+            // Reset steps
+            document.querySelectorAll('.step').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('step1').classList.add('active');
+
+            // Reset indicators
+            document.querySelectorAll('.step-dot').forEach(el => {
+                el.classList.remove('active', 'completed');
+            });
+            document.querySelector('.step-dot[data-step="1"]').classList.add('active');
+
+            currentStep = 1;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function editInputs() {
+            // Show edit modal/panel
+            const editHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); 
+                            z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;"
+                     id="editModal" onclick="if(event.target.id === 'editModal') closeEditModal()">
+                    <div style="background: white; border-radius: 16px; max-width: 700px; width: 100%; max-height: 90vh; 
+                                overflow-y: auto; padding: 30px; position: relative;"
+                         onclick="event.stopPropagation()">
+                        <button onclick="closeEditModal()" 
+                                style="position: absolute; top: 15px; right: 15px; background: #e0e0e0; 
+                                       border: none; width: 35px; height: 35px; border-radius: 50%; 
+                                       cursor: pointer; font-size: 20px; line-height: 1;">×</button>
+                        
+                        <h2 style="margin-bottom: 25px; color: #333;">✏️ Edit Data Investasi</h2>
+                        
+                        <div class="form-group">
+                            <label for="editGoal">Tujuan Investasi</label>
+                            <select id="editGoal">
+                                <option value="">Pilih tujuan...</option>
+                                <option value="retirement">Dana Pensiun</option>
+                                <option value="education">Dana Pendidikan</option>
+                                <option value="house">Beli Rumah</option>
+                                <option value="wedding">Pernikahan</option>
+                                <option value="other">Lainnya</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editTarget">Target Dana (Rp)</label>
+                            <input type="number" id="editTarget" placeholder="500000000" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editTime">Jangka Waktu (Tahun)</label>
+                            <input type="number" id="editTime" placeholder="10" min="1" max="50">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editRisk">Profil Risiko</label>
+                            <select id="editRisk">
+                                <option value="">Pilih profil risiko...</option>
+                                <option value="conservative">Konservatif - Risiko Rendah (5-10%)</option>
+                                <option value="moderate">Moderat - Risiko Sedang (10-15%)</option>
+                                <option value="aggressive">Agresif - Risiko Tinggi (>15%)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editCashflow">Investasi Rutin per Bulan (Rp)</label>
+                            <input type="number" id="editCashflow" placeholder="5000000" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editInitial">Dana Awal (Rp)</label>
+                            <input type="number" id="editInitial" placeholder="50000000" min="0">
+                        </div>
+
+                        <div class="button-group" style="margin-top: 25px;">
+                            <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
+                            <button class="btn-primary" onclick="saveEdits()">💾 Simpan & Hitung Ulang</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', editHTML);
+            
+            // Populate with current values
+            document.getElementById('editGoal').value = document.getElementById('investmentGoal').value;
+            document.getElementById('editTarget').value = document.getElementById('targetAmount').value;
+            document.getElementById('editTime').value = document.getElementById('timeHorizon').value;
+            document.getElementById('editRisk').value = selectedRisk;
+            document.getElementById('editCashflow').value = document.getElementById('monthlyCashflow').value;
+            document.getElementById('editInitial').value = document.getElementById('initialInvestment').value;
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function saveEdits() {
+            // Get edited values
+            const goal = document.getElementById('editGoal').value;
+            const target = document.getElementById('editTarget').value;
+            const time = document.getElementById('editTime').value;
+            const risk = document.getElementById('editRisk').value;
+            const cashflow = document.getElementById('editCashflow').value;
+            const initial = document.getElementById('editInitial').value;
+            
+            // Validate
+            if (!goal || !target || !time || !risk || !cashflow) {
+                alert('Mohon lengkapi semua data!');
+                return;
+            }
+            
+            if (parseFloat(target) <= 0) {
+                alert('Target dana harus lebih dari 0!');
+                return;
+            }
+            
+            if (parseInt(time) < 1) {
+                alert('Jangka waktu minimal 1 tahun!');
+                return;
+            }
+            
+            if (parseFloat(cashflow) <= 0) {
+                alert('Investasi rutin per bulan harus lebih dari 0!');
+                return;
+            }
+            
+            // Update original values
+            document.getElementById('investmentGoal').value = goal;
+            document.getElementById('targetAmount').value = target;
+            document.getElementById('timeHorizon').value = time;
+            selectedRisk = risk;
+            document.getElementById('riskProfile').value = risk;
+            document.getElementById('monthlyCashflow').value = cashflow;
+            document.getElementById('initialInvestment').value = initial || '0';
+            
+            // Update risk selection visual (for when going back to step 2)
+            document.querySelectorAll('.risk-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Close modal
+            closeEditModal();
+            
+            // Recalculate and show results
+            const targetAmount = parseFloat(target);
+            const timeHorizon = parseInt(time);
+            const monthlyCashflow = parseFloat(cashflow);
+            const initialInvestment = parseFloat(initial) || 0;
+
+            // Hitung return yang dibutuhkan menggunakan Future Value of Annuity formula
+            const months = timeHorizon * 12;
+            
+            let annualizedReturn = 0;
+            let totalInvestment = initialInvestment + (monthlyCashflow * months);
+            
+            if (totalInvestment >= targetAmount) {
+                annualizedReturn = 0;
+                totalInvestment = targetAmount;
+            } else {
+                let monthlyReturn = 0.005;
+                let found = false;
+                
+                for (let i = 0; i < 1000; i++) {
+                    let fv = initialInvestment * Math.pow(1 + monthlyReturn, months);
+                    
+                    if (monthlyReturn !== 0) {
+                        fv += monthlyCashflow * ((Math.pow(1 + monthlyReturn, months) - 1) / monthlyReturn);
+                    } else {
+                        fv += monthlyCashflow * months;
+                    }
+                    
+                    if (Math.abs(fv - targetAmount) < 1000) {
+                        found = true;
+                        break;
+                    }
+                    
+                    if (fv < targetAmount) {
+                        monthlyReturn += 0.0001;
+                    } else {
+                        monthlyReturn -= 0.00005;
+                    }
+                }
+                
+                annualizedReturn = (Math.pow(1 + monthlyReturn, 12) - 1) * 100;
+                
+                if (annualizedReturn < 0) annualizedReturn = 0;
+            }
+            
+            const requiredReturn = ((targetAmount - totalInvestment) / totalInvestment) * 100;
+
+            let returnCategory = '';
+            let returnBadge = '';
+            if (annualizedReturn < 10) {
+                returnCategory = 'Rendah';
+                returnBadge = 'badge-green';
+            } else if (annualizedReturn < 20) {
+                returnCategory = 'Sedang';
+                returnBadge = 'badge-yellow';
+            } else {
+                returnCategory = 'Tinggi';
+                returnBadge = 'badge-red';
+            }
+
+            let filteredStocks = stockDatabase.filter(stock => {
+                if (risk === 'conservative') {
+                    // Untuk konservatif, hanya saham konservatif dengan return memadai
+                    return stock.risk === 'conservative' && stock.avgReturn >= Math.min(annualizedReturn - 5, 8);
+                } else if (risk === 'moderate') {
+                    // Untuk moderat, terima konservatif dan moderat
+                    return (stock.risk === 'conservative' || stock.risk === 'moderate') && 
+                           stock.avgReturn >= Math.min(annualizedReturn - 5, 10);
+                } else {
+                    // Untuk agresif, terima semua yang memenuhi target return
+                    return stock.avgReturn >= Math.min(annualizedReturn - 5, 15);
+                }
+            });
+
+            filteredStocks.sort((a, b) => b.avgReturn - a.avgReturn);
+            filteredStocks = filteredStocks.slice(0, 10);
+
+            displayResults(targetAmount, timeHorizon, totalInvestment, requiredReturn, 
+                          annualizedReturn, returnCategory, returnBadge, filteredStocks);
+            
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4caf50; color: white; ' +
+                                       'padding: 15px 25px; border-radius: 8px; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+            successMsg.innerHTML = '✅ Data berhasil diperbarui dan hasil telah dihitung ulang!';
+            document.body.appendChild(successMsg);
+            
+            setTimeout(() => {
+                successMsg.remove();
+            }, 3000);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
